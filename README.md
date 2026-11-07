@@ -37,6 +37,178 @@ tavf image list
 tavf image pull ubuntu-arm64
 ```
 
+## 镜像内容（只有基础系统）
+
+镜像**刻意保持最小**：只装「基础系统 + termux-avf 运行必需组件」，其余软件一律由你
+在 VM 内自行安装（这样避免镜像膨胀、也避免版本锁死）。
+
+| 已包含 | 说明 |
+|---|---|
+| systemd / systemd-sysv / udev | 基础 init 与设备管理 |
+| iproute2 / kmod | 网络与模块工具 |
+| socat + openssl | tavfd 的 pty 中继依赖（框架必需） |
+| lrzsz | zmodem 文件传输（框架必需，`tavf` 传文件用） |
+| systemd-resolved / tzdata / locales | 基础系统组件 |
+| **无** | 无 git/curl/vim/nginx/docker/数据库/编译器… 全部自行安装 |
+
+## 自行安装常用服务器软件
+
+> 两个发行版都建议**先做一次系统更新**，再装软件。
+> Ubuntu 用 `apt`，Arch Linux ARM 用 `pacman`（滚动更新，无固定版本号）。
+
+### 0. 先更新系统
+
+```bash
+# Ubuntu Server
+sudo apt update && sudo apt -y full-upgrade
+
+# Arch Linux ARM（首次需初始化 keyring）
+sudo pacman-key --init && sudo pacman-key --populate archlinuxarm
+sudo pacman -Syu
+```
+
+### 1. 基础开发工具
+
+```bash
+# Ubuntu
+sudo apt install -y build-essential git curl wget vim htop tmux unzip jq
+
+# Arch
+sudo pacman -S --needed base-devel git curl wget vim htop tmux unzip jq
+```
+
+### 2. Web 服务器 / 反向代理 / HTTPS
+
+```bash
+# Nginx
+sudo apt install -y nginx            # Ubuntu
+sudo pacman -S --needed nginx        # Arch
+
+# Caddy（自动 HTTPS）
+sudo apt install -y caddy            # Ubuntu
+sudo pacman -S --needed caddy        # Arch
+
+# 证书
+sudo apt install -y certbot python3-certbot-nginx   # Ubuntu
+sudo pacman -S --needed certbot                     # Arch
+sudo systemctl enable --now nginx caddy 2>/dev/null
+```
+
+### 3. 数据库与缓存
+
+```bash
+# PostgreSQL
+sudo apt install -y postgresql        # Ubuntu
+sudo pacman -S --needed postgresql    # Arch
+
+# MariaDB / MySQL
+sudo apt install -y mariadb-server    # Ubuntu
+sudo pacman -S --needed mariadb       # Arch
+
+# Redis
+sudo apt install -y redis-server      # Ubuntu
+sudo pacman -S --needed redis         # Arch
+
+# SQLite
+sudo apt install -y sqlite3           # Ubuntu
+sudo pacman -S --needed sqlite        # Arch
+
+sudo systemctl enable --now postgresql mariadb redis 2>/dev/null
+```
+
+### 4. 语言运行时
+
+```bash
+# Python
+sudo apt install -y python3 python3-pip python3-venv     # Ubuntu
+sudo pacman -S --needed python python-pip                # Arch
+
+# Node.js
+sudo apt install -y nodejs npm                           # Ubuntu（版本较保守）
+# 需要新版：curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash - && sudo apt install -y nodejs
+sudo pacman -S --needed nodejs npm                       # Arch
+
+# Java
+sudo apt install -y openjdk-21-jdk-headless              # Ubuntu
+sudo pacman -S --needed jdk-openjdk                      # Arch
+
+# Go / Rust / PHP
+sudo apt install -y golang-go rustc cargo php-fpm        # Ubuntu
+sudo pacman -S --needed go rust php                      # Arch
+```
+
+### 5. 容器
+
+```bash
+# Docker
+sudo apt install -y docker.io docker-compose-v2          # Ubuntu
+sudo pacman -S --needed docker docker-compose            # Arch
+sudo systemctl enable --now docker
+sudo usermod -aG docker $USER   # 重新登录生效
+
+# Podman（无守护进程，适合 ARM 小机器）
+sudo apt install -y podman                               # Ubuntu
+sudo pacman -S --needed podman                           # Arch
+```
+
+### 6. 文件共享与同步
+
+```bash
+# rsync / rclone
+sudo apt install -y rsync rclone                         # Ubuntu
+sudo pacman -S --needed rsync rclone                     # Arch
+
+# Samba / NFS / Syncthing
+sudo apt install -y samba nfs-kernel-server syncthing    # Ubuntu
+sudo pacman -S --needed samba nfs-utils syncthing        # Arch
+sudo systemctl enable --now smbd syncthing@$USER 2>/dev/null
+```
+
+### 7. 远程访问 / 安全
+
+```bash
+# SSH 服务端
+sudo apt install -y openssh-server                       # Ubuntu
+sudo pacman -S --needed openssh                          # Arch
+sudo systemctl enable --now sshd
+
+# WireGuard
+sudo apt install -y wireguard-tools                      # Ubuntu
+sudo pacman -S --needed wireguard-tools                  # Arch
+
+# 防火墙 / 防爆破
+sudo apt install -y nftables fail2ban                    # Ubuntu
+sudo pacman -S --needed nftables fail2ban                 # Arch
+```
+
+### 8. 媒体与其它常用服务
+
+```bash
+sudo apt install -y ffmpeg imagemagick mosquitto         # Ubuntu
+sudo pacman -S --needed ffmpeg imagemagick mosquitto      # Arch
+
+# Git 服务器（可选，轻量）
+sudo apt install -y gitea 2>/dev/null || echo "gitea 在 Arch: pacman -S gitea"
+```
+
+### 9. Arch Linux ARM 的 AUR 说明
+
+ALA 官方仓库不含 AUR。需要 AUR 包（如 `tailscale`、`yay`）时自己编译：
+
+```bash
+sudo pacman -S --needed base-devel git
+git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si
+```
+
+> ARM 上部分 AUR 包无预编译产物，会本地编译（耗时长、需内存充足）。
+
+### 10. 注意事项
+
+- 镜像默认**无桌面环境**；需要图形界面自行安装（`ubuntu-desktop-minimal` /
+  `xorg-server` + 轻量 WM），但注意 AVF VM 通常无 GPU 加速。
+- 磁盘默认较小（Ubuntu 1.4G / Arch 5G）；装大软件前先扩容（edit ext4 + `resize2fs`）。
+- 时区/语言：`timedatectl set-timezone Asia/Shanghai`、`locale-gen`。
+
 ## 与上游兼容性承诺
 
 镜像只做**最小化定制**（tavfd 中继 + 网络配置），不魔改包管理器与系统组件；

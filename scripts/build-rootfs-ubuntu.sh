@@ -18,7 +18,7 @@ mkfs.ext4 -q -F -E nodiscard -L tavf-root "$OUT"
 sudo mount -o loop "$OUT" "$MNT"
 
 sudo debootstrap --variant=minbase --components=main,universe \
-  --include=systemd,systemd-sysv,iproute2,kmod,lrzsz,tzdata,locales,socat,udev,iputils-ping,openssl \
+  --include=systemd,systemd-sysv,iproute2,kmod,udev,tzdata,locales,socat,openssl,lrzsz \
   --arch="$DEB_ARCH" "$SUITE" "$MNT" "$MIRROR"
 
 # tavfd：双传输（有网 TCP / 无网 vsock）

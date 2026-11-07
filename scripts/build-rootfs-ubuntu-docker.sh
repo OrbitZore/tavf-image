@@ -17,8 +17,8 @@ echo "installing systemd + tools..."
 docker exec tavf-rfs bash -c '
   apt-get update -qq
   DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
-    systemd systemd-sysv iproute2 kmod lrzsz tzdata locales socat udev \
-    iputils-ping openssl systemd-resolved >/dev/null
+    systemd systemd-sysv iproute2 kmod udev tzdata locales \
+    socat openssl lrzsz systemd-resolved >/dev/null
   echo tavf > /etc/hostname
   mkdir -p /etc/systemd/system/sockets.target.wants /etc/systemd/system/multi-user.target.wants
   printf 'nameserver 10.1.4.1\n' > /etc/resolv.conf
