@@ -6,7 +6,7 @@ set -euo pipefail
 ARCH=${1:-x86_64}
 OUT=${2:-kernel}
 VER=${LINUX_VERSION:-6.6.74}
-FRAG=$(dirname "$0")/kernel-avf-guest.fragment
+FRAG=$(cd "$(dirname "$0")" && pwd)/kernel-avf-guest.fragment
 DL=${KERNEL_DIR:-$(mktemp -d)}
 
 cd "$DL"
