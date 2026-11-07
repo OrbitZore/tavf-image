@@ -38,6 +38,28 @@ jobs:
             initrd-${{ matrix.name }}
             kernel-source-${{ matrix.name }}.txt
 
+  kernel-archarm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq libarchive-tools
+          curl -fL --retry 3 -o ala.tar.gz http://os.archlinuxarm.org/os/ArchLinuxARM-aarch64-latest.tar.gz
+          mkdir -p ala
+          sudo bsdtar -xpf ala.tar.gz -C ala boot/Image boot/initramfs-linux.img 2>/dev/null || \
+            bsdtar -xpf ala.tar.gz -C ala boot/Image boot/initramfs-linux.img
+          cp ala/boot/Image kernel-arm64-ala
+          cp ala/boot/initramfs-linux.img initrd-arm64-ala
+          echo "linux-aarch64 (ArchLinuxARM official, from ALA tarball)" > kernel-source-arm64-ala.txt
+          ls -la kernel-arm64-ala initrd-arm64-ala
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kernel-archarm
+          path: |
+            kernel-arm64-ala
+            initrd-arm64-ala
+            kernel-source-arm64-ala.txt
+
   rootfs-ubuntu:
     strategy:
       matrix:
@@ -74,7 +96,7 @@ jobs:
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: [distro-kernel, rootfs-ubuntu, rootfs-archarm]
+    needs: [distro-kernel, kernel-archarm, rootfs-ubuntu, rootfs-archarm]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
