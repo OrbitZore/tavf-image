@@ -32,7 +32,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq bc bison flex libelf-dev libssl-dev \
-            clang lld llvm bpftool
+            clang lld llvm
         if: matrix.arch == 'arm64'
       - name: deps (x86_64/gcc)
         run: |
@@ -65,12 +65,12 @@ jobs:
         run: sudo apt-get update -qq && sudo apt-get install -y -qq debootstrap
       - name: build
         run: |
-          chmod +x scripts/build-rootfs-ubuntu.sh
+          chmod +x scripts/build-rootfs-ubuntu-docker.sh
           case "${{ matrix.debarch }}" in
             amd64) a=x86_64 ;;
             arm64) a=arm64 ;;
           esac
-          sudo scripts/build-rootfs-ubuntu.sh "${{ matrix.debarch }}" "ubuntu-$a-rootfs.ext4"
+          sudo -E bash scripts/build-rootfs-ubuntu-docker.sh "${{ matrix.debarch }}" "ubuntu-$a-rootfs.ext4" 1400
       - uses: actions/upload-artifact@v4
         with:
           name: ubuntu-$a-rootfs
