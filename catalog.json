@@ -1,30 +1,34 @@
 {
-  "version": 1,
-  "updated": "2026-11-07",
+  "version": 2,
+  "updated": "2026-11-08",
   "base": "https://github.com/OrbitZore/tavf-image/releases/download",
+  "tag": "latest",
   "images": [
     {
       "name": "ubuntu-x86_64",
       "distro": "ubuntu",
       "arch": "x86_64",
-      "desc": "Ubuntu 24.04 minimal + tavfd (x86_64, AVF/emulator)",
-      "kernel": "vmlinuz-x86_64-6.6",
+      "desc": "Ubuntu 24.04 base + tavfd (kernel: Ubuntu linux-image-virtual)",
+      "kernel": "kernel-ubuntu-x86_64",
+      "initrd": "initrd-ubuntu-x86_64",
       "rootfs": "ubuntu-x86_64-rootfs.ext4.gz"
     },
     {
       "name": "ubuntu-arm64",
       "distro": "ubuntu",
       "arch": "arm64",
-      "desc": "Ubuntu 24.04 minimal + tavfd (aarch64, 真机 AVF)",
-      "kernel": "Image-arm64-6.6",
+      "desc": "Ubuntu 24.04 base + tavfd (kernel: Ubuntu linux-image-virtual arm64)",
+      "kernel": "kernel-ubuntu-arm64",
+      "initrd": "initrd-ubuntu-arm64",
       "rootfs": "ubuntu-arm64-rootfs.ext4.gz"
     },
     {
-      "name": "archlinux-arm64",
+      "name": "archarm-arm64",
       "distro": "archlinux",
       "arch": "arm64",
-      "desc": "Arch Linux ARM minimal + tavfd (aarch64, pacman 兼容)",
-      "kernel": "Image-arm64-6.6",
+      "desc": "Arch Linux ARM base + tavfd (kernel: linux-aarch64, from ALA)",
+      "kernel": "kernel-arm64-ala",
+      "initrd": "initrd-arm64-ala",
       "rootfs": "archarm-rootfs.ext4.gz"
     }
   ]
