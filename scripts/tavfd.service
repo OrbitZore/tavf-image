@@ -1,0 +1,11 @@
+[Unit]
+Description=termux-avf pty relay
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/tavfd
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
