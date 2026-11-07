@@ -48,6 +48,7 @@ jobs:
           mkdir -p ala
           sudo bsdtar -xpf ala.tar.gz -C ala boot/Image boot/initramfs-linux.img 2>/dev/null || \
             bsdtar -xpf ala.tar.gz -C ala boot/Image boot/initramfs-linux.img
+          sudo chmod -R a+rX ala/boot
           cp ala/boot/Image kernel-arm64-ala
           cp ala/boot/initramfs-linux.img initrd-arm64-ala
           echo "linux-aarch64 (ArchLinuxARM official, from ALA tarball)" > kernel-source-arm64-ala.txt
