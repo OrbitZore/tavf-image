@@ -1,0 +1,112 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+    paths: ["scripts/**", "catalog.json", ".github/workflows/build.yml"]
+  workflow_dispatch:
+    inputs:
+      linux_version:
+        description: "内核版本（vanilla stable）"
+        default: "6.6.74"
+        required: false
+
+permissions:
+  contents: write
+
+env:
+  LINUX_VERSION: ${{ inputs.linux_version || '6.6.74' }}
+
+jobs:
+  kernel:
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86_64, arm64]
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: deps
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq bc bison flex libelf-dev libssl-dev \
+            clang lld llvm bpftool
+        if: matrix.arch == 'arm64'
+      - name: deps (x86_64/gcc)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq bc bison flex libelf-dev libssl-dev
+        if: matrix.arch == 'x86_64'
+      - name: build
+        run: |
+          chmod +x scripts/build-kernel.sh
+          if [ "$matrix.arch" = arm64 ]; then
+            export LLVM=1
+          fi
+          scripts/build-kernel.sh "${{ matrix.arch }}" "kernel-${{ matrix.arch }}"
+        env:
+          matrix_arch: ${{ matrix.arch }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kernel-${{ matrix.arch }}
+          path: kernel-${{ matrix.arch }}
+
+  rootfs-ubuntu:
+    strategy:
+      matrix:
+        debarch: [amd64, arm64]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: deps
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq debootstrap
+      - name: build
+        run: |
+          chmod +x scripts/build-rootfs-ubuntu.sh
+          case "${{ matrix.debarch }}" in
+            amd64) a=x86_64 ;;
+            arm64) a=arm64 ;;
+          esac
+          sudo scripts/build-rootfs-ubuntu.sh "${{ matrix.debarch }}" "ubuntu-$a-rootfs.ext4"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ubuntu-$a-rootfs
+          path: ubuntu-*rootfs.ext4
+
+  rootfs-archarm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: deps
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libarchive-tools
+      - name: build
+        run: |
+          chmod +x scripts/build-rootfs-archarm.sh
+          sudo scripts/build-rootfs-archarm.sh archarm-rootfs.ext4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: archarm-rootfs
+          path: archarm-rootfs.ext4
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [kernel, rootfs-ubuntu, rootfs-archarm]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+          path: dist
+      - name: catalog
+        run: cp catalog.json dist/
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*

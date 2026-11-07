@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "updated": "2026-11-07",
+  "base": "https://github.com/OrbitZore/tavf-image/releases/download",
+  "images": [
+    {
+      "name": "ubuntu-x86_64",
+      "distro": "ubuntu",
+      "arch": "x86_64",
+      "desc": "Ubuntu 24.04 minimal + tavfd (x86_64, AVF/emulator)",
+      "kernel": "vmlinuz-x86_64-6.6",
+      "rootfs": "ubuntu-x86_64-rootfs.ext4"
+    },
+    {
+      "name": "ubuntu-arm64",
+      "distro": "ubuntu",
+      "arch": "arm64",
+      "desc": "Ubuntu 24.04 minimal + tavfd (aarch64, 真机 AVF)",
+      "kernel": "Image-arm64-6.6",
+      "rootfs": "ubuntu-arm64-rootfs.ext4"
+    },
+    {
+      "name": "archlinux-arm64",
+      "distro": "archlinux",
+      "arch": "arm64",
+      "desc": "Arch Linux ARM minimal + tavfd (aarch64, pacman 兼容)",
+      "kernel": "Image-arm64-6.6",
+      "rootfs": "archarm-rootfs.ext4"
+    }
+  ]
+}
