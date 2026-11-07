@@ -1,8 +1,7 @@
 {
   "version": 2,
   "updated": "2026-11-08",
-  "base": "https://github.com/OrbitZore/tavf-image/releases/download",
-  "tag": "latest",
+  "base": "https://github.com/OrbitZore/tavf-image/releases/latest/download",
   "images": [
     {
       "name": "ubuntu-x86_64",
