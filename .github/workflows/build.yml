@@ -88,7 +88,7 @@ jobs:
       - name: build
         run: |
           chmod +x scripts/build-rootfs-archarm.sh
-          sudo scripts/build-rootfs-archarm.sh archarm-rootfs.ext4
+          sudo scripts/build-rootfs-archarm.sh archarm-rootfs.ext4 2600
       - uses: actions/upload-artifact@v4
         with:
           name: archarm-rootfs
