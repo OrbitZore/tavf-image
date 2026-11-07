@@ -4,6 +4,7 @@
 set -euo pipefail
 DEB_ARCH=${1:-amd64}
 OUT=${2:-rootfs.ext4}
+SIZE=${SIZE:-${3:-1400}}
 QARCH=$([[ $DEB_ARCH == amd64 ]] && echo amd64 || echo arm64)
 
 echo "pulling ubuntu:24.04 for $QARCH..."
@@ -36,7 +37,6 @@ docker export tavf-rfs -o /tmp/tavf-rootfs.tar
 docker rm -f tavf-rfs >/dev/null
 
 echo "populating ext4 ($SIZE MiB)..."
-SIZE=${SIZE:-1400}
 rm -f "$OUT"; truncate -s "${SIZE}M" "$OUT"
 EXTRACT=$(mktemp -d)
 tar -xf /tmp/tavf-rootfs.tar -C "$EXTRACT"
