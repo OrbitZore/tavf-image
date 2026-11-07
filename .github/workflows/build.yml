@@ -107,8 +107,12 @@ jobs:
         with:
           merge-multiple: true
           path: dist
-      - name: catalog
-        run: cp catalog.json dist/
+      - name: compress + catalog
+        run: |
+          cd dist
+          for f in *.ext4; do [ -f "$f" ] && gzip -9 "$f"; done
+          ls -la
+          cp ../catalog.json .
       - uses: softprops/action-gh-release@v2
         with:
           files: |
