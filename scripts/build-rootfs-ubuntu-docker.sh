@@ -30,6 +30,32 @@ docker exec tavf-rfs bash -c '
   ln -sf /lib/systemd/system/systemd-networkd.service /etc/systemd/system/multi-user.target.wants/systemd-networkd.service
   ln -sf /lib/systemd/system/systemd-udevd.service /etc/systemd/system/multi-user.target.wants/systemd-udevd.service
   ln -sf /lib/systemd/system/systemd-networkd.socket /etc/systemd/system/sockets.target.wants/systemd-networkd.socket
+  # ---- tavfd: pty 中继（框架必需；guest 在 console 公告 TAVF_IP）----
+  mkdir -p /usr/local/bin
+  cat > /usr/local/bin/tavfd <<"EOF"
+#!/bin/bash
+i=0; IP=""
+while [ $i -lt 20 ]; do
+  IP=$(ip -4 -o addr show scope global 2>/dev/null | awk "{print \$4}" | cut -d/ -f1 | grep -v "^169\.254\." | head -1)
+  [ -n "$IP" ] && break; sleep 2; i=$((i+1))
+done
+echo "TAVF_IP=${IP:-none}" > /dev/hvc0 2>/dev/null
+exec /usr/bin/socat TCP-LISTEN:7300,reuseaddr,fork EXEC:"/sbin/agetty --autologin root --noissue -",pty,setsid,ctty,stderr
+EOF
+  chmod +x /usr/local/bin/tavfd
+  cat > /etc/systemd/system/tavfd.service <<"EOF"
+[Unit]
+Description=termux-avf pty relay
+After=network.target
+[Service]
+ExecStart=/usr/local/bin/tavfd
+Restart=always
+RestartSec=2
+[Install]
+WantedBy=multi-user.target
+EOF
+  mkdir -p /etc/systemd/system/multi-user.target.wants
+  ln -sf /etc/systemd/system/tavfd.service /etc/systemd/system/multi-user.target.wants/tavfd.service
 '
 
 echo "exporting rootfs tar..."
