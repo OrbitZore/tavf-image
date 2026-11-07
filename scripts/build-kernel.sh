@@ -17,19 +17,14 @@ fi
 [ -d linux-$VER ] || tar xJf linux-$VER.tar.xz
 cd linux-$VER
 
-if [ "$ARCH" = x86_64 ]; then
-  make defconfig
-  KOUT=bzImage
-else
-  make ARCH=arm64 defconfig
-  KOUT=arch/arm64/boot/Image
-fi
+case "$ARCH" in
+  x86_64) DEFCONFIG=x86_64_defconfig; TARGET=bzImage; OUTP=arch/x86/boot/bzImage ;;
+  arm64)  DEFCONFIG=defconfig;        TARGET=Image;   OUTP=arch/arm64/boot/Image ;;
+  *) echo "unsupported arch: $ARCH" >&2; exit 2 ;;
+esac
+make ARCH=$ARCH $DEFCONFIG
 ./scripts/kconfig/merge_config.sh -m .config "$FRAG"
 make ARCH=$ARCH olddefconfig
-make ARCH=$ARCH -j"$(nproc)" $KOUT
-
-case $ARCH in
-  x86_64) cp arch/x86_64/boot/bzImage "$OUT" 2>/dev/null || cp arch/x86/boot/bzImage "$OUT" ;;
-  arm64)  cp arch/arm64/boot/Image "$OUT" ;;
-esac
+make ARCH=$ARCH -j"$(nproc)" $TARGET
+cp "$OUTP" "$OUT"
 echo "built: $OUT ($(du -h "$OUT" | cut -f1))"

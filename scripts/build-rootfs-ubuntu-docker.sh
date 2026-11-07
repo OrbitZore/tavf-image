@@ -19,14 +19,13 @@ docker exec tavf-rfs bash -c '
     systemd systemd-sysv iproute2 kmod lrzsz tzdata locales socat udev \
     iputils-ping openssl systemd-resolved >/dev/null
   echo tavf > /etc/hostname
-  rm -f /etc/resolv.conf
-  ln -sf ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+  mkdir -p /etc/systemd/system/sockets.target.wants /etc/systemd/system/multi-user.target.wants
+  printf 'nameserver 10.1.4.1\n' > /etc/resolv.conf
   mkdir -p /etc/systemd/system/getty@hvc0.service.d
   printf "[Service]\nExecStart=\nExecStart=-/sbin/agetty --autologin root --noclear hvc0 115200 \$TERM\n" \
     > /etc/systemd/system/getty@hvc0.service.d/autologin.conf
   mkdir -p /etc/systemd/system/getty.target.wants
   ln -sf /lib/systemd/system/getty@.service /etc/systemd/system/getty.target.wants/getty@hvc0.service
-  mkdir -p /etc/systemd/system/multi-user.target.wants
   ln -sf /lib/systemd/system/systemd-networkd.service /etc/systemd/system/multi-user.target.wants/systemd-networkd.service
   ln -sf /lib/systemd/system/systemd-udevd.service /etc/systemd/system/multi-user.target.wants/systemd-udevd.service
   ln -sf /lib/systemd/system/systemd-networkd.socket /etc/systemd/system/sockets.target.wants/systemd-networkd.socket

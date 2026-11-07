@@ -42,7 +42,7 @@ jobs:
       - name: build
         run: |
           chmod +x scripts/build-kernel.sh
-          if [ "$matrix.arch" = arm64 ]; then
+          if [ "${{ matrix.arch }}" = arm64 ]; then
             export LLVM=1
           fi
           scripts/build-kernel.sh "${{ matrix.arch }}" "kernel-${{ matrix.arch }}"
