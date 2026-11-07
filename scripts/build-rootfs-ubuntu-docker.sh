@@ -40,7 +40,7 @@ while [ $i -lt 20 ]; do
   [ -n "$IP" ] && break; sleep 2; i=$((i+1))
 done
 echo "TAVF_IP=${IP:-none}" > /dev/hvc0 2>/dev/null
-exec /usr/bin/socat TCP-LISTEN:7300,reuseaddr,fork EXEC:"/sbin/agetty --autologin root --noissue -",pty,setsid,ctty,stderr
+exec /usr/bin/socat TCP-LISTEN:7300,reuseaddr,fork EXEC:'/sbin/agetty --autologin root --noissue -',pty,setsid,ctty,stderr
 EOF
   chmod +x /usr/local/bin/tavfd
   cat > /etc/systemd/system/tavfd.service <<"EOF"
