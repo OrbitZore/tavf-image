@@ -27,7 +27,11 @@ case "$DISTRO" in
     INITRD=$(docker exec "$CT" sh -c 'ls /boot/initrd.img-* | head -1')
     docker cp "$CT:$VMLINUZ" "$OUT/kernel"
     docker cp "$CT:$INITRD" "$OUT/initrd"
-    docker exec "$CT" sh -c 'dpkg-query -W -f="${Package} ${Version}\n" linux-image-virtual' > "$OUT/kernel-source.txt" 2>/dev/null || true
+    {
+      echo "package: $(docker exec "$CT" dpkg -l linux-image-virtual 2>/dev/null | awk '/^ii/{print $2, $3}' | head -1)"
+      echo "kernel:  $(basename "$VMLINUZ" | sed 's/^vmlinuz-//')"
+      echo "source:  Ubuntu official linux-image-virtual ("$QARCH"), extracted $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    } > "$OUT/kernel-source.txt"
     docker rm -f "$CT" >/dev/null
     ;;
   archarm)
