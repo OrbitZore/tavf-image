@@ -29,6 +29,42 @@ archarm-rootfs.ext4
 catalog.json
 ```
 
+## catalog.json 的字段
+
+`catalog.src.json` 是**手写的**（只写“有哪些镜像、每个角色用哪个 asset”），
+`catalog.json` 是**生成的**（由 `scripts/gen-catalog.sh` 从实际产物算出 size/sha256）。
+**不要手改 `catalog.json` 的校验和**，改 `catalog.src.json` 后重新生成：
+
+```bash
+# 从本地已构建产物（CI release job 就是这么做的）
+bash scripts/gen-catalog.sh --local dist
+
+# 从已发布的 GitHub Release 读 digest（事后补录 / 本地校对）
+bash scripts/gen-catalog.sh --release          # latest
+bash scripts/gen-catalog.sh --release v1.3.1
+```
+
+每个镜像除角色字段外，还带（按角色前缀）：
+
+| 字段 | 含义 | 来源 |
+|---|---|---|
+| `kernel_bytes` / `initrd_bytes` / `rootfs_bytes` | 下载字节数 | 产物实际大小 / Release API |
+| `kernel_sha256` / `initrd_sha256` / `rootfs_sha256` | 下载校验和 | 本地 `sha256sum` / Release API 的 `digest` |
+| `rootfs_uncompressed` | rootfs **解压后**字节数 | gzip ISIZE trailer |
+
+顶层 `updated` 是生成日期（不是手填的）。
+
+> **为什么需要 `rootfs_uncompressed`**：客户端导入时要解压 rootfs，
+> 真正占磁盘的是解压后的 1.4 GB / 2.5 GB，不是下载的 90 MB。
+> termux-avf 用这个值做**导入前的空间预检**，呰不到就直接报
+> 「磁盘空间不足：约需 N MiB，当前可用 M MiB」，而不是写到一半 ENOSPC。
+> GitHub 的 release CDN 不支持 `bytes=-4` 后缀范围（会回 501），
+> 所以脚本用显式的 `bytes=<size-4>-<size-1>` 读尾部 4 字节。
+
+消费端（termux-avf App 与 `tavf` CLI）会在**下载后校验 sha256**：
+不匹配则删掉 `.part` 并以 exit 5 失败，不会把坏文件当成功。
+校验和缺失时 CLI 会明说“catalog 未提供，跳过校验”（不默默信任）。
+
 ## tavf 使用
 
 ```bash

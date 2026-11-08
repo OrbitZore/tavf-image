@@ -30,7 +30,7 @@ case "$DISTRO" in
     {
       echo "package: $(docker exec "$CT" dpkg -l linux-image-virtual 2>/dev/null | awk '/^ii/{print $2, $3}' | head -1)"
       echo "kernel:  $(basename "$VMLINUZ" | sed 's/^vmlinuz-//')"
-      echo "source:  Ubuntu official linux-image-virtual ("$QARCH"), extracted $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+      echo "source:  Ubuntu official linux-image-virtual ($QARCH), extracted $(date -u +%Y-%m-%dT%H:%M:%SZ)"
     } > "$OUT/kernel-source.txt"
     docker rm -f "$CT" >/dev/null
     ;;

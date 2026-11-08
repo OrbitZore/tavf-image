@@ -75,7 +75,11 @@ for u in systemd-networkd.service systemd-udevd.service systemd-udev-trigger.ser
 done
 sudo ln -sf ../run/systemd/resolve/stub-resolv.conf "$MNT/etc/resolv.conf"
 sudo tee "$MNT/etc/hostname" >/dev/null <<< tavf
-sudo : > "$MNT/etc/machine-id" 2>/dev/null || sudo sh -c ': > "$MNT/etc/machine-id"'
+# Truncate machine-id so each guest generates its own on first boot.
+# The old `sudo : > "$MNT/..."` redirected as the *unprivileged* caller, and the
+# `|| sudo sh -c ': > "$MNT/..."'` fallback never expanded $MNT inside single
+# quotes, so it wrote a literal `$MNT/etc/machine-id` instead.
+printf '' | sudo tee "$MNT/etc/machine-id" >/dev/null
 
 sudo umount -R "$MNT"
 echo "built: $OUT ($(du -h "$OUT" | cut -f1))"

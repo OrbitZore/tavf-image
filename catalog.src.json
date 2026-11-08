@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "base": "https://github.com/OrbitZore/tavf-image/releases/latest/download",
+  "images": [
+    {
+      "name": "ubuntu-x86_64",
+      "distro": "ubuntu",
+      "arch": "x86_64",
+      "desc": "Ubuntu 24.04 base + tavfd (kernel: Ubuntu linux-image-virtual)",
+      "kernel": "kernel-ubuntu-x86_64",
+      "initrd": "initrd-ubuntu-x86_64",
+      "rootfs": "ubuntu-x86_64-rootfs.ext4.gz"
+    },
+    {
+      "name": "ubuntu-arm64",
+      "distro": "ubuntu",
+      "arch": "arm64",
+      "desc": "Ubuntu 24.04 base + tavfd (kernel: Ubuntu linux-image-virtual arm64)",
+      "kernel": "kernel-ubuntu-arm64",
+      "initrd": "initrd-ubuntu-arm64",
+      "rootfs": "ubuntu-arm64-rootfs.ext4.gz"
+    },
+    {
+      "name": "archarm-arm64",
+      "distro": "archlinux",
+      "arch": "arm64",
+      "desc": "Arch Linux ARM base + tavfd (kernel: linux-aarch64, from ALA)",
+      "kernel": "kernel-arm64-ala",
+      "initrd": "initrd-arm64-ala",
+      "rootfs": "archarm-rootfs.ext4.gz"
+    }
+  ]
+}

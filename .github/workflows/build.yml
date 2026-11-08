@@ -109,8 +109,14 @@ jobs:
         run: |
           cd dist
           for f in *.ext4; do [ -f "$f" ] && gzip -9 "$f"; done
-          cp ../catalog.json .
-          ls -la
+          # Compute size/sha256/uncompressed from the artifacts we are about to
+          # publish, so the catalog never ships a hand-copied (or missing) digest.
+          cd ..
+          bash scripts/gen-catalog.sh --local dist
+          echo "catalog.json:"
+          python3 -c "import json;print(json.dumps(json.load(open('catalog.json')),ensure_ascii=False,indent=2)[:1200])"
+          cp catalog.json dist/
+          ls -la dist
       - uses: softprops/action-gh-release@v2
         with:
           files: |

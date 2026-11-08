@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "updated": "2026-11-08",
   "base": "https://github.com/OrbitZore/tavf-image/releases/latest/download",
   "images": [
     {
@@ -10,7 +9,14 @@
       "desc": "Ubuntu 24.04 base + tavfd (kernel: Ubuntu linux-image-virtual)",
       "kernel": "kernel-ubuntu-x86_64",
       "initrd": "initrd-ubuntu-x86_64",
-      "rootfs": "ubuntu-x86_64-rootfs.ext4.gz"
+      "rootfs": "ubuntu-x86_64-rootfs.ext4.gz",
+      "kernel_bytes": 15108488,
+      "kernel_sha256": "9e9bb539fbf5e25c3fa737180e3586dacd0922257cdffe319daf8e5ceecaeaf0",
+      "initrd_bytes": 19623318,
+      "initrd_sha256": "246c441ebf4eafe14072dff74e294ca1647def864651572dc4dbe6d8dfbca9e9",
+      "rootfs_bytes": 89837896,
+      "rootfs_sha256": "33d2ed2f0a5f80758481ef3a74da01a63c755fce98e071ad37f978f10fe0fdc1",
+      "rootfs_uncompressed": 1468006400
     },
     {
       "name": "ubuntu-arm64",
@@ -19,7 +25,14 @@
       "desc": "Ubuntu 24.04 base + tavfd (kernel: Ubuntu linux-image-virtual arm64)",
       "kernel": "kernel-ubuntu-arm64",
       "initrd": "initrd-ubuntu-arm64",
-      "rootfs": "ubuntu-arm64-rootfs.ext4.gz"
+      "rootfs": "ubuntu-arm64-rootfs.ext4.gz",
+      "kernel_bytes": 18640518,
+      "kernel_sha256": "6378491f4b1ca6c45b8eb6ad3f4a6b9e331575fcfd2658d6ed2e514b27a9ec68",
+      "initrd_bytes": 19201300,
+      "initrd_sha256": "f2962b32ca7d794ec2265012670ab089fd7b7729dbda94248fb78ebab2faa955",
+      "rootfs_bytes": 90023885,
+      "rootfs_sha256": "22ee4d452dfef2b161d39e3697ab3cf6b14085b376440ad1d6aa837d8dd4c2d7",
+      "rootfs_uncompressed": 1468006400
     },
     {
       "name": "archarm-arm64",
@@ -28,7 +41,15 @@
       "desc": "Arch Linux ARM base + tavfd (kernel: linux-aarch64, from ALA)",
       "kernel": "kernel-arm64-ala",
       "initrd": "initrd-arm64-ala",
-      "rootfs": "archarm-rootfs.ext4.gz"
+      "rootfs": "archarm-rootfs.ext4.gz",
+      "kernel_bytes": 44100096,
+      "kernel_sha256": "2b069424bf66ffd5fe9e4f134ecb61c0381cd4356db3110940f0500e0ae2f45b",
+      "initrd_bytes": 15371767,
+      "initrd_sha256": "a9bb29d29abda94748c9948f903c3c1704f829eea477652b9a4201a61f36a647",
+      "rootfs_bytes": 830677596,
+      "rootfs_sha256": "35791345418e2cc1d13cdaece1b38374b7a8036ecb94b2861dbc8f65e776e06f",
+      "rootfs_uncompressed": 2726297600
     }
-  ]
+  ],
+  "updated": "2026-11-08"
 }
